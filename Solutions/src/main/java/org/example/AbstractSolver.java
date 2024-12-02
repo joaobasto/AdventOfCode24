@@ -28,8 +28,7 @@ public abstract class AbstractSolver implements Solver {
         BufferedReader br
                 = new BufferedReader(new FileReader(file));
 
-        String line;
-        int result = 0;
+        long result = 0;
         switch (challengeNumber) {
             case 1:
                 result = createSolutionExercise1(br);
@@ -42,9 +41,9 @@ public abstract class AbstractSolver implements Solver {
         System.out.println("The result is: " + result);
     }
 
-    protected abstract int createSolutionExercise1(BufferedReader br) throws IOException;
+    protected abstract long createSolutionExercise1(BufferedReader br) throws IOException;
 
-    protected abstract int createSolutionExercise2(BufferedReader br) throws IOException;
+    protected abstract long createSolutionExercise2(BufferedReader br) throws IOException;
 
 
 }

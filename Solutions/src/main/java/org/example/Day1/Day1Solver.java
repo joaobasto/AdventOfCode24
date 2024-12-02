@@ -11,7 +11,7 @@ public class Day1Solver extends AbstractSolver {
 
 
     @Override
-    protected int createSolutionExercise1(BufferedReader br) throws IOException {
+    protected long createSolutionExercise1(BufferedReader br) throws IOException {
         String line;
         List<Integer> leftNumbers = new ArrayList<>();
         List<Integer> rightNumbers = new ArrayList<>();
@@ -25,7 +25,7 @@ public class Day1Solver extends AbstractSolver {
         leftNumbers.sort(Integer::compareTo);
         rightNumbers.sort(Integer::compareTo);
 
-        int result = 0;
+        long result = 0;
         for (int i = 0; i < leftNumbers.size(); i++) {
             result += Math.abs(leftNumbers.get(i) - rightNumbers.get(i));
         }
@@ -34,7 +34,7 @@ public class Day1Solver extends AbstractSolver {
     }
 
     @Override
-    protected int createSolutionExercise2(BufferedReader br) throws IOException {
+    protected long createSolutionExercise2(BufferedReader br) throws IOException {
         String line;
         List<Integer> leftNumbers = new ArrayList<>();
         Map<Integer, Integer> occurencesPerNumberRight = new HashMap<>();
@@ -46,10 +46,10 @@ public class Day1Solver extends AbstractSolver {
             occurencesPerNumberRight.compute(numbers.get(1), (k, v) -> v == null ? 1 : v + 1);
         }
 
-        int result = 0;
+        long result = 0;
         for (Integer leftNumber : leftNumbers) {
             int occurences = occurencesPerNumberRight.getOrDefault(leftNumber, 0);
-            result += occurences * leftNumber;
+            result += (long) occurences * leftNumber;
         }
 
         return result;
