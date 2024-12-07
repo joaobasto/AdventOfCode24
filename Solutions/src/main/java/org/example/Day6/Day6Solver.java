@@ -60,6 +60,7 @@ public class Day6Solver extends AbstractSolver {
         Grid<PositionData> grid = new Grid<>();
         Guard guard = null;
         String line;
+        Position2D initialPosition = null;
         long y = 0;
         while ((line = br.readLine()) != null) {
             char[] characters = line.toCharArray();
@@ -72,6 +73,7 @@ public class Day6Solver extends AbstractSolver {
                 } else {
                     positionData = new PositionData(false, true);
                     guard = new Guard(x, y, characters[(int) x]);
+                    initialPosition = new Position2D(x, y);
                 }
                 grid.addElement(x, y, positionData);
             }
@@ -83,25 +85,25 @@ public class Day6Solver extends AbstractSolver {
         long result = 0;
         for (long x2 = 0; x2 < grid.getNumberOfColumns(); x2++) {
             for (long y2 = 0; y2 < grid.getNumberOfRows(); y2++) {
-                //create a copy of the grid
-                Grid<PositionData> newGrid = grid.createCopy();
                 //add obstacle to grid if not initial position of guard nor existing obstacle
-                if (grid.getElement(x2, y2).isObstacle() || grid.getElement(x2, y2).isBelongsToGaurdPath()) {
+                boolean isObstacle = grid.getElement(x2, y2).isObstacle();
+                if (isObstacle || (initialPosition.getX() == x2 && initialPosition.getY() == y2)) {
                     continue;
                 }
-                newGrid.getElement(x2, y2).setObstacle(true);
+                grid.getElement(x2, y2).setObstacle(true);
                 //create a copy of the guard
                 Guard newGuard = guard.createCopy();
                 //move guard until leaving map or getting in a loop
                 while (true) {
-                    newGuard.move(newGrid);
-                    if (newGuard.isOutOfBounds(newGrid)) {
+                    newGuard.move(grid);
+                    if (newGuard.isOutOfBounds(grid)) {
                         break;
                     } else if (newGuard.isReachedLoop()) {
                         result++;
                         break;
                     }
                 }
+                grid.getElement(x2, y2).setObstacle(isObstacle);
             }
         }
         return result;

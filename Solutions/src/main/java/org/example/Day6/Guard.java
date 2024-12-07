@@ -53,9 +53,10 @@ public class Guard implements Copiable<Guard> {
     public void move(Grid<PositionData> grid) {
         long x = this.currentPosition.getX() + this.currentDirection.getX();
         long y = this.currentPosition.getY() + this.currentDirection.getY();
-        if (grid.getElement(x, y) == null) {
+        PositionData possibleNextPositionData = grid.getElement(x, y);
+        if (possibleNextPositionData == null) {
             this.currentPosition = new Position2D(x, y);
-        } else if (grid.getElement(x, y).isObstacle()) {
+        } else if (possibleNextPositionData.isObstacle()) {
             Direction2D newDirection = null;
             switch (currentDirection) {
                 case NORTH:
@@ -78,7 +79,7 @@ public class Guard implements Copiable<Guard> {
             this.previousTrajectoryPoints.add(new TrajectoryPoint2D(currentPosition, currentDirection));
         } else {
             this.currentPosition = new Position2D(x, y);
-            grid.getElement(x, y).setBelongsToGaurdPath(true);
+            possibleNextPositionData.setBelongsToGaurdPath(true);
             if (this.previousTrajectoryPoints.contains(new TrajectoryPoint2D(currentPosition, currentDirection))) {
                 reachedLoop = true;
             }
