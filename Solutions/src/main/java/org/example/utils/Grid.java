@@ -1,9 +1,11 @@
 package org.example.utils;
 
+import org.example.Day6.PositionData;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class Grid<T> {
+public class Grid<T extends Copiable<T>> implements Copiable<Grid<T>>{
 
     private final Map<Position2D, T> map = new HashMap<>();;
     private long numberOfColumns;
@@ -41,5 +43,15 @@ public class Grid<T> {
 
     public boolean isPositionInGrid(long x, long y) {
         return x >= 0 && x < numberOfColumns && y >= 0 && y < numberOfRows;
+    }
+
+    public Grid<T> createCopy() {
+        Grid<T> newGrid = new Grid<>();
+        for(Map.Entry<Position2D, T> entry : this.getMap().entrySet()) {
+            newGrid.addElement(entry.getKey().getX(), entry.getKey().getY(), entry.getValue().createCopy());
+        }
+        newGrid.setNumberOfColumns(this.numberOfColumns);
+        newGrid.setNumberOfRows(this.numberOfRows);
+        return newGrid;
     }
 }

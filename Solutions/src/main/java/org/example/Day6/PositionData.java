@@ -1,6 +1,8 @@
 package org.example.Day6;
 
-public class PositionData {
+import org.example.utils.Copiable;
+
+public class PositionData implements Copiable<PositionData> {
 
     private boolean obstacle;
 
@@ -25,5 +27,10 @@ public class PositionData {
 
     public void setBelongsToGaurdPath(boolean belongsToGaurdPath) {
         this.belongsToGaurdPath = belongsToGaurdPath;
+    }
+
+    @Override
+    public PositionData createCopy() {
+        return new PositionData(isObstacle(), isBelongsToGaurdPath());
     }
 }

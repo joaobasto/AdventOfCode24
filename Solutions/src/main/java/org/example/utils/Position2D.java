@@ -9,7 +9,7 @@ import java.util.Objects;
  * x: West -> East
  * y: North -> South
  */
-public class Position2D {
+public class Position2D implements Copiable<Position2D>{
 
     private long x;
     private long y;
@@ -38,5 +38,10 @@ public class Position2D {
     @Override
     public int hashCode() {
         return Objects.hash(x, y);
+    }
+
+    @Override
+    public Position2D createCopy() {
+        return new Position2D(this.getX(), this.getY());
     }
 }
