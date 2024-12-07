@@ -20,8 +20,8 @@ public class Day7Solver extends AbstractSolver {
                     .map(Long::valueOf).collect(Collectors.toList());
 
             //define initial state
-            long currentValue = 0;
-            int currentNumberIndex = 0;
+            long currentValue = numbers.get(0);
+            int currentNumberIndex = 1;
 
             if (isValidEquation(currentValue, currentNumberIndex, testValue, numbers)) {
                 result += testValue;
