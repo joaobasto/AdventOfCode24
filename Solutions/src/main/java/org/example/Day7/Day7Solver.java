@@ -46,11 +46,39 @@ public class Day7Solver extends AbstractSolver {
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
         String line;
+        long result = 0;
         while ((line = br.readLine()) != null) {
+            String[] numbersAsStrings = line.split(": ");
+            Long testValue = Long.valueOf(numbersAsStrings[0]);
+            List<Long> numbers = Arrays.stream(numbersAsStrings[1].split("\\s+"))
+                    .map(Long::valueOf).collect(Collectors.toList());
+
+            //define initial state
+            long currentValue = numbers.get(0);
+            int currentNumberIndex = 1;
+
+            if (isValidEquation2(currentValue, currentNumberIndex, testValue, numbers)) {
+                result += testValue;
+            }
         }
 
-        long result = 0;
-
         return result;
+    }
+
+    private boolean isValidEquation2(long currentValue, int currentNumberIndex, long testValue, List<Long> numbers) {
+        //check for terminal conditions
+        if (currentValue > testValue) {
+            return false;
+        }
+        if (currentNumberIndex == numbers.size()) {
+            return currentValue == testValue;
+        }
+
+        //determine concatenated value
+        long concatenatedValue = (long) (Math.pow(10, String.valueOf(numbers.get(currentNumberIndex)).length()) * currentValue + numbers.get(currentNumberIndex));
+
+        return isValidEquation2(currentValue * numbers.get(currentNumberIndex), currentNumberIndex+1, testValue, numbers)
+                || isValidEquation2(currentValue + numbers.get(currentNumberIndex), currentNumberIndex+1, testValue, numbers)
+                || isValidEquation2(concatenatedValue, currentNumberIndex+1, testValue, numbers);
     }
 }
