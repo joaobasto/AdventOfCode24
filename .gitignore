@@ -2,3 +2,7 @@
 */target/*
 */.gitignore
 
+
+Solutions/src/main/resources/META-INF/MANIFEST.MF
+
+Solutions/out/
