@@ -19,14 +19,12 @@ public abstract class AbstractSolver implements Solver {
     }
 
     public void solveExercise(int challengeNumber) throws IOException {
-        System.out.println("Using " + getSolverName() + "for Challenge "
-                + String.valueOf(challengeNumber) + " : ");
+        System.out.println("Using " + getSolverName() + " for Challenge "
+                + challengeNumber + " : ");
 
-        ClassLoader classLoader = Day1Solver.class.getClassLoader();
-        File file = new File(classLoader.getResource("input" + getSolverName() + ".txt").getFile());
-
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("input" + getSolverName() + ".txt");
         BufferedReader br
-                = new BufferedReader(new FileReader(file));
+                = new BufferedReader(new InputStreamReader(inputStream));
 
         long result = 0;
         switch (challengeNumber) {
