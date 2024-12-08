@@ -27,6 +27,18 @@ public class Position2D implements Copiable<Position2D>{
         return y;
     }
 
+    /**
+     * Calculates the new position if, taken this position, we move in the direction of the input direction
+     * vector, with a step size defined by stepSize
+     * @param directionVector
+     * @param stepSize
+     * @return
+     */
+    public Position2D positionAfterMovement(Position2D directionVector, long stepSize) {
+        return new Position2D(this.getX() + directionVector.getX()*stepSize,
+                this.getY() + directionVector.getY()*stepSize);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
