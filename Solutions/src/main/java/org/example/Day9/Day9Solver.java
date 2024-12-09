@@ -119,6 +119,101 @@ public class Day9Solver extends AbstractSolver {
 
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
-        return 0;
+        String line;
+        boolean isFile = true;
+        long fileId = 0;
+        long currentPosition = 0;
+        List<FileSpace> fileSpaces = new ArrayList<>();
+        TreeMap<Long, FileSpace> fileSpacesTreeMap = new TreeMap<>();
+        TreeMap<Long, FreeSpace> freeSpacesTreeMap = new TreeMap<>();
+        while ((line = br.readLine()) != null) {
+            List<Character> characters = line.chars().mapToObj(i -> (char) i).collect(Collectors.toList());
+            for (Character character : characters) {
+                if (Character.getNumericValue(character) == 0) {
+                    isFile = !isFile;
+                    continue;
+                }
+                if (isFile) {
+                    FileSpace newFileSpace = new FileSpace(currentPosition, Character.getNumericValue(character), fileId);
+                    fileSpacesTreeMap.put(currentPosition, newFileSpace);
+                    fileSpaces.add(newFileSpace);
+                    fileId++;
+                } else {
+                    freeSpacesTreeMap.put(currentPosition, new FreeSpace(currentPosition, Character.getNumericValue(character)));
+                }
+                isFile = !isFile;
+                currentPosition += Character.getNumericValue(character);
+            }
+        }
+
+        for (int i = fileSpaces.size() - 1; i >= 0; i--) {
+            //if no more free spaces, break
+            if (freeSpacesTreeMap.isEmpty()) {
+                break;
+            }
+            FileSpace currentFileSpace = fileSpaces.get(i);
+            //get start position of first free space where it fits
+            FreeSpace freeSpaceToAllocate = null;
+            for (FreeSpace freeSpace : freeSpacesTreeMap.values()) {
+                if (freeSpace.getSize() >= currentFileSpace.getSize()) {
+                    freeSpaceToAllocate = freeSpace;
+                    break;
+                }
+            }
+            if (freeSpaceToAllocate == null || freeSpaceToAllocate.getStartPosition() > currentFileSpace.getStartPosition()) {
+                continue;
+            }
+
+            
+            //create free space where file space is
+            freeSpacesTreeMap.put(currentFileSpace.getStartPosition(), new FreeSpace(currentFileSpace.getStartPosition(), currentFileSpace.getSize()));
+            //merge with next free space if contiguous
+            Long nextFreeSpaceKey = freeSpacesTreeMap.higherKey(currentFileSpace.getStartPosition());
+            if (nextFreeSpaceKey != null) {
+                long nextPosition = currentFileSpace.getStartPosition() + currentFileSpace.getSize();
+                if (nextPosition == freeSpacesTreeMap.get(nextFreeSpaceKey).getStartPosition()) {
+                    //remove the next free space and merge with current
+                    freeSpacesTreeMap.get(currentFileSpace.getStartPosition()).setSize(currentFileSpace.getSize() +
+                            freeSpacesTreeMap.get(nextFreeSpaceKey).getSize());
+                    freeSpacesTreeMap.remove(nextFreeSpaceKey);
+                }
+            }
+            //merge with previous free space if contiguous
+            Long previousFreeSpaceKey = freeSpacesTreeMap.floorKey(currentFileSpace.getStartPosition() - 1);
+            if (previousFreeSpaceKey != null) {
+                long nextPosition = freeSpacesTreeMap.get(previousFreeSpaceKey).getStartPosition() + freeSpacesTreeMap.get(previousFreeSpaceKey).getSize();
+                if (nextPosition == currentFileSpace.getStartPosition()) {
+                    //remove the current free space and merge with previous
+                    freeSpacesTreeMap.get(previousFreeSpaceKey).setSize(freeSpacesTreeMap.get(previousFreeSpaceKey).getSize() +
+                            currentFileSpace.getSize());
+                    freeSpacesTreeMap.remove(currentFileSpace.getStartPosition());
+                }
+            }
+
+            //move the file space to the free space position
+            fileSpacesTreeMap.remove(currentFileSpace.getStartPosition());
+            currentFileSpace.setStartPosition(freeSpaceToAllocate.getStartPosition());
+            fileSpacesTreeMap.put(freeSpaceToAllocate.getStartPosition(), currentFileSpace);
+            if (freeSpaceToAllocate.getSize() > currentFileSpace.getSize()) {
+                //change the free space start position to current + size of file space
+                freeSpaceToAllocate.setStartPosition(freeSpaceToAllocate.getStartPosition() + currentFileSpace.getSize());
+                //change free space size to remove the now occupied size
+                freeSpaceToAllocate.setSize(freeSpaceToAllocate.getSize() - currentFileSpace.getSize());
+            } else {
+                freeSpacesTreeMap.remove(freeSpaceToAllocate.getStartPosition());
+            }
+        }
+
+        long result = 0;
+
+        for (FileSpace fileSpace : fileSpacesTreeMap.values()) {
+            long sum = 0;
+            for (long i = fileSpace.getStartPosition(); i < fileSpace.getStartPosition() + fileSpace.getSize(); i++) {
+                sum += i;
+            }
+            result += fileSpace.getId() * sum;
+        }
+
+        return result;
     }
 }
