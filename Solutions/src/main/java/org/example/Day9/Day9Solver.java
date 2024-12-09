@@ -147,10 +147,6 @@ public class Day9Solver extends AbstractSolver {
         }
 
         for (int i = fileSpaces.size() - 1; i >= 0; i--) {
-            //if no more free spaces, break
-            if (freeSpacesTreeMap.isEmpty()) {
-                break;
-            }
             FileSpace currentFileSpace = fileSpaces.get(i);
             //get start position of first free space where it fits
             FreeSpace freeSpaceToAllocate = null;
@@ -164,41 +160,19 @@ public class Day9Solver extends AbstractSolver {
                 continue;
             }
 
-            
-            //create free space where file space is
-            freeSpacesTreeMap.put(currentFileSpace.getStartPosition(), new FreeSpace(currentFileSpace.getStartPosition(), currentFileSpace.getSize()));
-            //merge with next free space if contiguous
-            Long nextFreeSpaceKey = freeSpacesTreeMap.higherKey(currentFileSpace.getStartPosition());
-            if (nextFreeSpaceKey != null) {
-                long nextPosition = currentFileSpace.getStartPosition() + currentFileSpace.getSize();
-                if (nextPosition == freeSpacesTreeMap.get(nextFreeSpaceKey).getStartPosition()) {
-                    //remove the next free space and merge with current
-                    freeSpacesTreeMap.get(currentFileSpace.getStartPosition()).setSize(currentFileSpace.getSize() +
-                            freeSpacesTreeMap.get(nextFreeSpaceKey).getSize());
-                    freeSpacesTreeMap.remove(nextFreeSpaceKey);
-                }
-            }
-            //merge with previous free space if contiguous
-            Long previousFreeSpaceKey = freeSpacesTreeMap.floorKey(currentFileSpace.getStartPosition() - 1);
-            if (previousFreeSpaceKey != null) {
-                long nextPosition = freeSpacesTreeMap.get(previousFreeSpaceKey).getStartPosition() + freeSpacesTreeMap.get(previousFreeSpaceKey).getSize();
-                if (nextPosition == currentFileSpace.getStartPosition()) {
-                    //remove the current free space and merge with previous
-                    freeSpacesTreeMap.get(previousFreeSpaceKey).setSize(freeSpacesTreeMap.get(previousFreeSpaceKey).getSize() +
-                            currentFileSpace.getSize());
-                    freeSpacesTreeMap.remove(currentFileSpace.getStartPosition());
-                }
-            }
-
             //move the file space to the free space position
             fileSpacesTreeMap.remove(currentFileSpace.getStartPosition());
             currentFileSpace.setStartPosition(freeSpaceToAllocate.getStartPosition());
             fileSpacesTreeMap.put(freeSpaceToAllocate.getStartPosition(), currentFileSpace);
             if (freeSpaceToAllocate.getSize() > currentFileSpace.getSize()) {
+                //we will update the start position, so we should remove it from the tree map
+                freeSpacesTreeMap.remove(freeSpaceToAllocate.getStartPosition());
                 //change the free space start position to current + size of file space
                 freeSpaceToAllocate.setStartPosition(freeSpaceToAllocate.getStartPosition() + currentFileSpace.getSize());
                 //change free space size to remove the now occupied size
                 freeSpaceToAllocate.setSize(freeSpaceToAllocate.getSize() - currentFileSpace.getSize());
+                //re-insert in the tree map
+                freeSpacesTreeMap.put(freeSpaceToAllocate.getStartPosition(), freeSpaceToAllocate);
             } else {
                 freeSpacesTreeMap.remove(freeSpaceToAllocate.getStartPosition());
             }
