@@ -1,6 +1,5 @@
 package org.example.utils;
 
-import org.example.Day6.PositionData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +32,10 @@ public class Grid<T> {
 
     public T getElement(long x, long y) {
         Position2D position = new Position2D(x, y);
+        return map.get(position);
+    }
+
+    public T getElement(Position2D position) {
         return map.get(position);
     }
 
