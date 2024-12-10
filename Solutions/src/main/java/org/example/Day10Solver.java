@@ -50,7 +50,6 @@ public class Day10Solver extends AbstractSolver {
             return;
         }
 
-        long result = 0;
         for(Position2D position : validNeighbors) {
             calculateReachableFinishes(position, grid, reachableFinishes);
         }
@@ -87,6 +86,48 @@ public class Day10Solver extends AbstractSolver {
 
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
-        return 0;
+        //initial setup of the grid and the guard
+        Grid<Integer> grid = new Grid<>();
+        List<Position2D> trailheadPositions = new ArrayList<>();
+        String line;
+        long y = 0;
+        while ((line = br.readLine()) != null) {
+            char[] characters = line.toCharArray();
+            for(long x = 0; x < characters.length; x++) {
+                Integer height = Character.getNumericValue(characters[(int) x]);
+                if (height == 0) {
+                    trailheadPositions.add(new Position2D(x, y));
+                }
+                grid.addElement(x, y, height);
+            }
+            grid.setNumberOfColumns(characters.length);
+            y++;
+        }
+        grid.setNumberOfRows(y);
+
+        long result = 0;
+        for (Position2D trailheadPosition : trailheadPositions) {
+            List<Position2D> reachableFinishes = new ArrayList<>();
+            calculateReachableFinishes(trailheadPosition, grid, reachableFinishes);
+            result += reachableFinishes.size();
+        }
+        return result;
+    }
+
+    private void calculateReachableFinishes(Position2D currentPosition, Grid<Integer> grid,
+                                            List<Position2D> reachableFinishes) {
+        //check for terminal conditions
+        if (grid.getElement(currentPosition).equals(9)) {
+            reachableFinishes.add(currentPosition);
+            return;
+        }
+        List<Position2D> validNeighbors = getValidNeighbors(currentPosition, grid);
+        if (validNeighbors.isEmpty()) {
+            return;
+        }
+
+        for(Position2D position : validNeighbors) {
+            calculateReachableFinishes(position, grid, reachableFinishes);
+        }
     }
 }
