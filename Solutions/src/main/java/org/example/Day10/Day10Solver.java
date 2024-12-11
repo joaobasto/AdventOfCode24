@@ -1,5 +1,6 @@
-package org.example;
+package org.example.Day10;
 
+import org.example.AbstractSolver;
 import org.example.utils.Grid;
 import org.example.utils.Position2D;
 
