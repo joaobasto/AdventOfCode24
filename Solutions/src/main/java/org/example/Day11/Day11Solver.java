@@ -49,7 +49,7 @@ public class Day11Solver extends AbstractSolver {
 
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
-        Map<CacheKey, List<Long>> cache = new HashMap<>();
+        Map<Long, Node> graph = new HashMap<>();
         String line = br.readLine();
 
         String[] numbersAsStrings = line.split("\\s+");
@@ -63,30 +63,81 @@ public class Day11Solver extends AbstractSolver {
                 if (elements.get(i).getBlinkStage() == N_BLINKS) {
                     continue;
                 }
-                //TODO try to advance using cache
+                long value = elements.get(i).getValue();
 
-                if (elements.get(i).getValue() == 0L) {
+                //TODO try to advance using cache
+                if (graph.get(value) != null && graph.get(value).getLeftNode() != null) {
+                    System.out.println("Cache hit");
+                    List<Element> newElements = getNextElements(graph.get(value), elements.get(i).getBlinkStage());
+                    elements.addAll(newElements);
+                    elements.remove(i);
+                    i--;
+                    continue;
+                }
+
+                if (value == 0L) {
                     elements.get(i).setValue(1L);
                     elements.get(i).setBlinkStage(elements.get(i).getBlinkStage() + 1);
+                    Node currentNode = Optional.ofNullable(graph.get(0L)).orElse(new Node(0));
+                    Node leftNode = Optional.ofNullable(graph.get(1L)).orElse(new Node(1));
+                    currentNode.setLeftNode(leftNode);
+                    currentNode.setRightNode(null);
                 } else {
-                    long numberOfDigits = (long) (Math.log10(elements.get(i).getValue()) + 1);
+                    long numberOfDigits = (long) (Math.log10(value) + 1);
                     if (numberOfDigits% 2 == 0) {
                         long halfOfNumberOfDigits = numberOfDigits / 2;
-                        long firstNumber = elements.get(i).getValue() / (long) Math.pow(10, halfOfNumberOfDigits);
-                        long secondNumber = elements.get(i).getValue() % (long) Math.pow(10, halfOfNumberOfDigits);
+                        long firstNumber = value / (long) Math.pow(10, halfOfNumberOfDigits);
+                        long secondNumber = value % (long) Math.pow(10, halfOfNumberOfDigits);
                         elements.get(i).setValue(secondNumber);
                         elements.get(i).setBlinkStage(elements.get(i).getBlinkStage() + 1);
                         elements.add(i, new Element(firstNumber, elements.get(i).getBlinkStage()));
                         i++;
+                        Node currentNode = Optional.ofNullable(graph.get(value)).orElse(new Node(value));
+                        Node leftNode = Optional.ofNullable(graph.get(firstNumber)).orElse(new Node(firstNumber));
+                        Node rightNode = Optional.ofNullable(graph.get(secondNumber)).orElse(new Node(secondNumber));
+                        currentNode.setLeftNode(leftNode);
+                        currentNode.setRightNode(rightNode);
                     } else {
-                        elements.get(i).setValue(elements.get(i).getValue() * 2024);
+                        elements.get(i).setValue(value * 2024);
                         elements.get(i).setBlinkStage(elements.get(i).getBlinkStage() + 1);
+                        Node currentNode = Optional.ofNullable(graph.get(value)).orElse(new Node(value));
+                        Node leftNode = Optional.ofNullable(graph.get(value*2024)).orElse(new Node(value*2024));
+                        currentNode.setLeftNode(leftNode);
+                        currentNode.setRightNode(null);
                     }
                 }
             }
         }
 
         return elements.size();
+    }
+
+    private List<Element> getNextElements(Node node, long blinkStage) {
+        List<Node> nodesToExplore = new ArrayList<>();
+        nodesToExplore.add(node);
+        while (true) {
+            if (!areValid(nodesToExplore)) {
+                break;
+            } else {
+                for (int i = 0; i < nodesToExplore.size(); i++) {
+                    Node leftNode = nodesToExplore.get(i).getLeftNode();
+                    Node rightNode = nodesToExplore.get(i).getRightNode();
+                    nodesToExplore.remove(i);
+                    if (rightNode != null) {
+                        nodesToExplore.add(i, rightNode);
+                        i++;
+                    }
+                    nodesToExplore.add(i, leftNode);
+                }
+                blinkStage++;
+            }
+        }
+        final long blinkStage2 = blinkStage;
+        return nodesToExplore.stream().map(node2 -> new Element(node2.getValue(), blinkStage2)).collect(Collectors.toList());
+    }
+
+    private boolean areValid(List<Node> nodesToExplore) {
+        return nodesToExplore.stream().allMatch(node -> node.getLeftNode() != null);
     }
 
     private boolean isFinished(List<Element> elements) {
