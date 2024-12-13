@@ -13,6 +13,11 @@ public class Node {
 
     List<Node> adjacentNodes = new ArrayList<>();
 
+    Node leftNode;
+    Node rightNode;
+    Node upNode;
+    Node downNode;
+
     boolean visited = false;
 
     public Node(long x, long y, Character character) {
