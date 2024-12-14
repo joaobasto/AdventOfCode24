@@ -65,17 +65,10 @@ public class Day14Solver extends AbstractSolver {
         char [][] grid = new char[(int) NUMBER_OF_ROWS][(int) NUMBER_OF_COLUMNS];
         boolean [][] booleanGrid = new boolean[(int) NUMBER_OF_ROWS][(int) NUMBER_OF_COLUMNS];
         boolean [][] firstMask = {
-                {true, true, true, true, true, true, true},
                 {true, true, true, false, true, true, true},
-                {true, true, false, true, false, true, true},
-                {true, false, true, true, true, false, true},
-                {false, true, true, true, true, true, false},
-        };
-        boolean [][] secondMask = {
                 {true, true, false, false, false, true, true},
-                {true, true, false, true, false, true, true},
-                {true, false, true, true, true, false, true},
-                {false, true, true, true, true, true, false},
+                {true, false, false, false, false, false, true},
+                {false, false, false, false, false, false, false},
         };
 
         List<Position2D> initialPositions = new ArrayList<>();
@@ -117,12 +110,12 @@ public class Day14Solver extends AbstractSolver {
 
             //check if there is a match with the first mask
             boolean isMatch = true;
-            for (int i = 0; i < NUMBER_OF_ROWS - 4; i++) {
+            for (int i = 0; i < NUMBER_OF_ROWS - 3; i++) {
                 for (int j = 0; j < NUMBER_OF_COLUMNS - 6; j++) {
                     isMatch = true;
-                    for (int k = 0; k < 5; k++) {
+                    for (int k = 0; k < 4; k++) {
                         for (int l = 0; l < 7; l++) {
-                            isMatch = isMatch && (firstMask[k][l] || booleanGrid[i+k][j+l]);
+                            isMatch = firstMask[k][l] || booleanGrid[i + k][j + l];
                             if (!isMatch) {
                                 break;
                             }
@@ -135,20 +128,18 @@ public class Day14Solver extends AbstractSolver {
                         break;
                     }
                 }
+                if (isMatch) {
+                    break;
+                }
             }
 
             //print graph
             if (isMatch) {
                 printGraph(n_seconds, grid);
+                return 0;
             }
             n_seconds++;
-
-            if (n_seconds < 0) {
-                break;
-            }
         }
-
-        return 0;
     }
 
     private static void printGraph(long n_seconds, char[][] grid) {
