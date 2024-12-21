@@ -39,6 +39,10 @@ public class Grid<T> {
         return map.get(position);
     }
 
+    public void setElement(Position2D position, T positionData) {
+        map.put(position, positionData);
+    }
+
     public void addElement(long x, long y, T positionData) {
         Position2D position = new Position2D(x, y);
         map.put(position, positionData);
@@ -46,5 +50,15 @@ public class Grid<T> {
 
     public boolean isPositionInGrid(long x, long y) {
         return x >= 0 && x < numberOfColumns && y >= 0 && y < numberOfRows;
+    }
+
+    public void printGrid() {
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                System.out.print(this.getElement(j, i));
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 }
