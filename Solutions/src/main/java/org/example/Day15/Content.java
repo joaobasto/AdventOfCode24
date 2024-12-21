@@ -5,7 +5,9 @@ public enum Content {
     EMPTY("."),
     WALL("#"),
     BOX("O"),
-    ROBOT("@");
+    ROBOT("@"),
+    BOX_LEFT_SIDE("["),
+    BOX_RIGHT_SIDE("]");
 
     public final String representation;
 
