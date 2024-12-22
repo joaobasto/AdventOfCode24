@@ -24,6 +24,10 @@ public class Node {
         this.direction2D = direction2D;
     }
 
+    public Position2D getPosition2D() {
+        return position2D;
+    }
+
     public Long getDistance() {
         return distance;
     }
