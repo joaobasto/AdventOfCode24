@@ -17,7 +17,7 @@ public class Day19Solver extends AbstractSolver {
         br.readLine();
         long result = 0;
         while ((line = br.readLine()) != null) {
-            if (isFeasible(line, 0, patterns)) {
+            if (isFeasible(line, patterns)) {
                 result++;
             }
             System.out.println("Line calculated");
@@ -25,14 +25,17 @@ public class Day19Solver extends AbstractSolver {
         return result;
     }
 
-    private boolean isFeasible(String line, int i, List<String> patterns) {
-        if (i == line.length()) {
+    private boolean isFeasible(String line, List<String> patterns) {
+        if (line.isEmpty()) {
             return true;
         }
         boolean result = false;
         for (String pattern : patterns) {
-            if (line.substring(i).startsWith(pattern)) {
-                result = isFeasible(line, i + pattern.length(), patterns);
+            if (line.startsWith(pattern)) {
+                if(pattern.length() == line.length()) {
+                    return true;
+                }
+                result = isFeasible(line.substring(pattern.length()), patterns);
                 if (result) {
                     break;
                 }
