@@ -4,11 +4,9 @@ import org.example.AbstractSolver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Day19Solver extends AbstractSolver {
     @Override
@@ -23,15 +21,11 @@ public class Day19Solver extends AbstractSolver {
             if (isFeasible(line, patterns, cache)) {
                 result++;
             }
-            System.out.println("Line calculated");
         }
         return result;
     }
 
     private boolean isFeasible(String line, List<String> patterns, Map<String, Boolean> cache) {
-        if (line.isEmpty()) {
-            return true;
-        }
         if (cache.containsKey(line)) {
             return cache.get(line);
         }
@@ -67,9 +61,6 @@ public class Day19Solver extends AbstractSolver {
     }
 
     private long calculateNumberOfSolutions(String line, List<String> patterns, Map<String, Long> cache) {
-        if (line.isEmpty()) {
-            return 1L;
-        }
         if (cache.containsKey(line)) {
             return cache.get(line);
         }
