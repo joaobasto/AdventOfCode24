@@ -54,6 +54,36 @@ public class Day19Solver extends AbstractSolver {
 
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
-        return 0;
+        String line;
+        line = br.readLine();
+        List<String> patterns = List.of(line.split(", "));
+        br.readLine();
+        long result = 0;
+        Map<String, Long> cache = new HashMap<>();
+        while ((line = br.readLine()) != null) {
+            result += calculateNumberOfSolutions(line, patterns, cache);
+        }
+        return result;
+    }
+
+    private long calculateNumberOfSolutions(String line, List<String> patterns, Map<String, Long> cache) {
+        if (line.isEmpty()) {
+            return 1L;
+        }
+        if (cache.containsKey(line)) {
+            return cache.get(line);
+        }
+        long result = 0L;
+        for (String pattern : patterns) {
+            if (line.startsWith(pattern)) {
+                if(pattern.length() == line.length()) {
+                    result++;
+                } else {
+                    result += calculateNumberOfSolutions(line.substring(pattern.length()), patterns, cache);
+                }
+            }
+        }
+        cache.put(line, result);
+        return result;
     }
 }
