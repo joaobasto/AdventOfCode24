@@ -5,7 +5,9 @@ import org.example.AbstractSolver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Day19Solver extends AbstractSolver {
@@ -16,8 +18,9 @@ public class Day19Solver extends AbstractSolver {
         List<String> patterns = List.of(line.split(", "));
         br.readLine();
         long result = 0;
+        Map<String, Boolean> cache = new HashMap<>();
         while ((line = br.readLine()) != null) {
-            if (isFeasible(line, patterns)) {
+            if (isFeasible(line, patterns, cache)) {
                 result++;
             }
             System.out.println("Line calculated");
@@ -25,22 +28,27 @@ public class Day19Solver extends AbstractSolver {
         return result;
     }
 
-    private boolean isFeasible(String line, List<String> patterns) {
+    private boolean isFeasible(String line, List<String> patterns, Map<String, Boolean> cache) {
         if (line.isEmpty()) {
             return true;
+        }
+        if (cache.containsKey(line)) {
+            return cache.get(line);
         }
         boolean result = false;
         for (String pattern : patterns) {
             if (line.startsWith(pattern)) {
                 if(pattern.length() == line.length()) {
+                    cache.put(line, true);
                     return true;
                 }
-                result = isFeasible(line.substring(pattern.length()), patterns);
+                result = isFeasible(line.substring(pattern.length()), patterns, cache);
                 if (result) {
                     break;
                 }
             }
         }
+        cache.put(line, result);
         return result;
     }
 
