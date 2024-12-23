@@ -97,6 +97,104 @@ public class Day18Solver extends AbstractSolver {
 
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
+        String line;
+        List<List<Integer>> fullValues = new ArrayList<>();
+        while ((line = br.readLine()) != null) {
+            String[] valuesString = line.split(",");
+            List<Integer> values = Arrays.stream(valuesString)
+                    .map(Integer::valueOf).collect(Collectors.toList());
+            fullValues.add(values);
+        }
+
+        long memorySize = 0;
+        long distance;
+        while (true) {
+            distance = solveForMemorySize(fullValues, memorySize);
+            if (distance == Long.MAX_VALUE) {
+                break;
+            }
+            memorySize++;
+        }
+
+        System.out.println("Coordinates of byte are: " + fullValues.get((int) memorySize - 1).get(0) +
+                "," + fullValues.get((int) memorySize - 1).get(1));
         return 0;
+    }
+
+    private long solveForMemorySize(List<List<Integer>> fullValues, long memorySize) {
+        //initial setup of the grid and the guard
+        Grid<PositionData> grid = new Grid<>();
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                grid.addElement(i, j, new PositionData(false));
+            }
+        }
+        grid.setNumberOfColumns(GRID_SIZE);
+        grid.setNumberOfRows(GRID_SIZE);
+        long memoryCounter = 0;
+        while (true) {
+            if (memoryCounter == memorySize) {
+                break;
+            }
+            List<Integer> values = fullValues.get((int) memoryCounter);
+            grid.getElement(values.get(0), values.get(1)).setCorrupted(true);
+            memoryCounter++;
+        }
+
+        Node startNode = null;
+        Node endNode = null;
+        Map<Node, Node> nodes = new HashMap<>();
+        Map<Node, Map<Node, Long>> distances = new HashMap<>();
+        for (int i = 0; i < GRID_SIZE; i++) {
+            for (int j = 0; j < GRID_SIZE; j++) {
+                Node newNode = new Node(i, j);
+                nodes.put(newNode, newNode);
+                distances.put(newNode, new HashMap<>());
+                //check if node should be connected to left and up node
+                Node leftNode = nodes.get(new Node(i - 1, j));
+                if (i > 0 && leftNode != null && !grid.getElement(i - 1, j).isCorrupted()
+                        && !grid.getElement(i, j).isCorrupted()) {
+                    leftNode.addAdjacentNodes(newNode);
+                    newNode.addAdjacentNodes(leftNode);
+                    distances.get(newNode).put(leftNode, 1L);
+                    distances.get(leftNode).put(newNode, 1L);
+                }
+                Node upNode = nodes.get(new Node(i, j - 1));
+                if (j > 0 && upNode != null && !grid.getElement(i, j - 1).isCorrupted()
+                        && !grid.getElement(i, j).isCorrupted()) {
+                    upNode.addAdjacentNodes(newNode);
+                    newNode.addAdjacentNodes(upNode);
+                    distances.get(newNode).put(upNode, 1L);
+                    distances.get(upNode).put(newNode, 1L);
+                }
+                if (i == 0 && j == 0) {
+                    startNode = newNode;
+                }
+                if (i == GRID_SIZE - 1 && j == GRID_SIZE - 1) {
+                    endNode = newNode;
+                }
+            }
+        }
+
+        //Dijkstra
+        Map<Node, Long> nodeDistances = new HashMap<>();
+        for (Node node : nodes.values()) {
+            node.setDistance(Long.MAX_VALUE);
+        }
+        startNode.setDistance( 0L);
+        PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingInt(node -> Math.toIntExact(node.getDistance())));
+        pq.add(startNode);
+        while (!pq.isEmpty()) {
+            Node currentNode = pq.poll();
+            for(Node adjacentNode : currentNode.getAdjacentNodes()) {
+                long newDistance = currentNode.getDistance() + distances.get(currentNode).get(adjacentNode);
+                if (newDistance < adjacentNode.getDistance()) {
+                    adjacentNode.setDistance(newDistance);
+                    pq.add(adjacentNode);
+                }
+            }
+        }
+
+        return endNode.getDistance();
     }
 }
