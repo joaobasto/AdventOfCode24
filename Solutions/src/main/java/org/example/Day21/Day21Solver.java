@@ -69,6 +69,11 @@ public class Day21Solver extends AbstractSolver {
                         level2Characters.add('>');
                     }
                 }
+                if (rightDistance < 0 && NUMERIC_KEYPAD_POSITIONS.get(currentCharacter).getY() < 3) {
+                    for (int j = 0; j < -rightDistance; j++) {
+                        level2Characters.add('<');
+                    }
+                }
                 if (downDistance > 0) {
                     for (int j = 0; j < downDistance; j++) {
                         level2Characters.add('v');
@@ -78,7 +83,7 @@ public class Day21Solver extends AbstractSolver {
                         level2Characters.add('^');
                     }
                 }
-                if (rightDistance < 0) {
+                if (rightDistance < 0 && NUMERIC_KEYPAD_POSITIONS.get(currentCharacter).getY() >= 3) {
                     for (int j = 0; j < -rightDistance; j++) {
                         level2Characters.add('<');
                     }
@@ -116,6 +121,11 @@ public class Day21Solver extends AbstractSolver {
                     level3Characters.add('>');
                 }
             }
+            if (rightDistance < 0 && downDistance <= 0) {
+                for (int j = 0; j < -rightDistance; j++) {
+                    level3Characters.add('<');
+                }
+            }
             if (downDistance > 0) {
                 for (int j = 0; j < downDistance; j++) {
                     level3Characters.add('v');
@@ -125,7 +135,7 @@ public class Day21Solver extends AbstractSolver {
                     level3Characters.add('^');
                 }
             }
-            if (rightDistance < 0) {
+            if (rightDistance < 0 && downDistance > 0) {
                 for (int j = 0; j < -rightDistance; j++) {
                     level3Characters.add('<');
                 }
