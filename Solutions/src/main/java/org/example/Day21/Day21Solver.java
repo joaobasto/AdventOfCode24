@@ -5,10 +5,7 @@ import org.example.utils.Position2D;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Day21Solver extends AbstractSolver {
 
@@ -49,103 +46,211 @@ public class Day21Solver extends AbstractSolver {
         long result = 0L;
         String line;
         while ((line = br.readLine()) != null) {
-            List<Character> level2Characters = new ArrayList<>();
-            char currentCharacter = 'A';
+            TreeNode rootNode = new TreeNode(line, true);
             char[] characters = line.toCharArray();
+            char currentCharacter = 'A';
             for (int i = 0; i < characters.length; i++) {
-                long rightDistance = NUMERIC_KEYPAD_POSITIONS.get(characters[i]).getX() -
-                        NUMERIC_KEYPAD_POSITIONS.get(currentCharacter).getX();
-                long downDistance = NUMERIC_KEYPAD_POSITIONS.get(characters[i]).getY() -
-                        NUMERIC_KEYPAD_POSITIONS.get(currentCharacter).getY();
-                //check if we will go right, and calculate moves if we will
-                    //check if we will go up, and calculate moves if we will
-                    //check if we will go down, and calculate moves if we will
-                //else
-                    //check if we will go up, and calculate moves if we will
-                    //check if we will go down, and calculate moves if we will
-                    //check if we will go left, and calculate moves if we will
-                if (rightDistance > 0) {
-                    for (int j = 0; j < rightDistance; j++) {
-                        level2Characters.add('>');
-                    }
-                }
-                if (rightDistance < 0 && NUMERIC_KEYPAD_POSITIONS.get(currentCharacter).getY() < 3) {
-                    for (int j = 0; j < -rightDistance; j++) {
-                        level2Characters.add('<');
-                    }
-                }
-                if (downDistance > 0) {
-                    for (int j = 0; j < downDistance; j++) {
-                        level2Characters.add('v');
-                    }
-                } else {
-                    for (int j = 0; j < -downDistance; j++) {
-                        level2Characters.add('^');
-                    }
-                }
-                if (rightDistance < 0 && NUMERIC_KEYPAD_POSITIONS.get(currentCharacter).getY() >= 3) {
-                    for (int j = 0; j < -rightDistance; j++) {
-                        level2Characters.add('<');
-                    }
-                }
-                //press A
-                level2Characters.add('A');
-                //update current character
+                TreeNode treeNode = new TreeNode(currentCharacter + String.valueOf(characters[i]), false);
+                rootNode.addChild(treeNode);
                 currentCharacter = characters[i];
             }
-            List<Character> level3Characters = processLevel2Characters(level2Characters);
-            List<Character> level4Characters = processLevel2Characters(level3Characters);
-            result += (level4Characters.size() * Long.parseLong(line.substring(0, 3)));
-            int debug = 1;
+            //for all children
+                //calculate the two possible ways and add them as child nodes
+            List<TreeNode> allChildren = new ArrayList<>();
+            for (TreeNode treeNode : rootNode.getChildren()) {
+                Set<String> values = calculatePossibleWays(treeNode.value);
+                for (String value : values) {
+                    TreeNode childNode = new TreeNode(value, true);
+                    treeNode.addChild(childNode);
+                    allChildren.add(childNode);
+                }
+            }
+
+            //for all children
+                //split them into the sequence substrings
+            List<TreeNode> newChildren = new ArrayList<>();
+            for (TreeNode treeNode : allChildren) {
+                currentCharacter = 'A';
+                for (int i = 0; i < treeNode.value.length(); i++) {
+                    TreeNode childNode = new TreeNode(currentCharacter + String.valueOf(treeNode.value.charAt(i)), false);
+                    treeNode.addChild(childNode);
+                    newChildren.add(childNode);
+                    currentCharacter = treeNode.value.charAt(i);
+                }
+            }
+
+            //for all children
+            //calculate the two possible ways and add them as child nodes
+            allChildren = new ArrayList<>();
+            for (TreeNode treeNode : newChildren) {
+                Set<String> values = calculatePossibleWays2(treeNode.value);
+                for (String value : values) {
+                    TreeNode childNode = new TreeNode(value, true);
+                    treeNode.addChild(childNode);
+                    allChildren.add(childNode);
+                }
+            }
+
+            //for all children
+            //split them into the sequence substrings
+            newChildren = new ArrayList<>();
+            for (TreeNode treeNode : allChildren) {
+                currentCharacter = 'A';
+                for (int i = 0; i < treeNode.value.length(); i++) {
+                    TreeNode childNode = new TreeNode(currentCharacter + String.valueOf(treeNode.value.charAt(i)), false);
+                    treeNode.addChild(childNode);
+                    newChildren.add(childNode);
+                    currentCharacter = treeNode.value.charAt(i);
+                }
+            }
+
+            //for all children
+            //calculate the two possible ways and add them as child nodes
+            allChildren = new ArrayList<>();
+            for (TreeNode treeNode : newChildren) {
+                Set<String> values = calculatePossibleWays2(treeNode.value);
+                for (String value : values) {
+                    TreeNode childNode = new TreeNode(value, true);
+                    treeNode.addChild(childNode);
+                    allChildren.add(childNode);
+                }
+            }
+
+            result += (rootNode.calculateSize() * Long.parseLong(line.substring(0, 3)));
         }
         return result;
     }
 
-    private List<Character> processLevel2Characters(List<Character> level2Characters) {
-        List<Character> level3Characters = new ArrayList<>();
-        char currentCharacter = 'A';
-        for(int i = 0; i < level2Characters.size(); i++) {
-            long rightDistance = DIRECTIONAL_KEYPAD_POSITIONS.get(level2Characters.get(i)).getX() -
-                    DIRECTIONAL_KEYPAD_POSITIONS.get(currentCharacter).getX();
-            long downDistance = DIRECTIONAL_KEYPAD_POSITIONS.get(level2Characters.get(i)).getY() -
-                    DIRECTIONAL_KEYPAD_POSITIONS.get(currentCharacter).getY();
-            //check if we will go right, and calculate moves if we will
-            //check if we will go up, and calculate moves if we will
-            //check if we will go down, and calculate moves if we will
-            //else
-            //check if we will go up, and calculate moves if we will
-            //check if we will go down, and calculate moves if we will
-            //check if we will go left, and calculate moves if we will
-            if (rightDistance > 0) {
-                for (int j = 0; j < rightDistance; j++) {
-                    level3Characters.add('>');
-                }
+    private Set<String> calculatePossibleWays(String value) {
+        Set<String> result = new HashSet<>();
+        char fromValue = value.charAt(0);
+        char toValue = value.charAt(1);
+        long rightDistance = NUMERIC_KEYPAD_POSITIONS.get(toValue).getX() -
+                NUMERIC_KEYPAD_POSITIONS.get(fromValue).getX();
+        long downDistance = NUMERIC_KEYPAD_POSITIONS.get(toValue).getY() -
+                NUMERIC_KEYPAD_POSITIONS.get(fromValue).getY();
+        //check if we will go right, and calculate moves if we will
+        //check if we will go up, and calculate moves if we will
+        //check if we will go down, and calculate moves if we will
+        //else
+        //check if we will go up, and calculate moves if we will
+        //check if we will go down, and calculate moves if we will
+        //check if we will go left, and calculate moves if we will
+        StringBuilder stringBuilderHV = new StringBuilder();
+        if (rightDistance > 0) {
+            for (int j = 0; j < rightDistance; j++) {
+                stringBuilderHV.append('>');
             }
-            if (rightDistance < 0 && downDistance <= 0) {
-                for (int j = 0; j < -rightDistance; j++) {
-                    level3Characters.add('<');
-                }
-            }
-            if (downDistance > 0) {
-                for (int j = 0; j < downDistance; j++) {
-                    level3Characters.add('v');
-                }
-            } else {
-                for (int j = 0; j < -downDistance; j++) {
-                    level3Characters.add('^');
-                }
-            }
-            if (rightDistance < 0 && downDistance > 0) {
-                for (int j = 0; j < -rightDistance; j++) {
-                    level3Characters.add('<');
-                }
-            }
-            //press A
-            level3Characters.add('A');
-            //update current character
-            currentCharacter = level2Characters.get(i);
         }
-        return level3Characters;
+        if (rightDistance < 0) {
+            for (int j = 0; j < -rightDistance; j++) {
+                stringBuilderHV.append('<');
+            }
+        }
+        if (downDistance > 0) {
+            for (int j = 0; j < downDistance; j++) {
+                stringBuilderHV.append('v');
+            }
+        } else {
+            for (int j = 0; j < -downDistance; j++) {
+                stringBuilderHV.append('^');
+            }
+        }
+        stringBuilderHV.append('A');
+        if (!(NUMERIC_KEYPAD_POSITIONS.get(fromValue).getY() >= 3 && NUMERIC_KEYPAD_POSITIONS.get(toValue).getX() == 0)) {
+           result.add(stringBuilderHV.toString());
+        }
+        StringBuilder stringBuilderVH = new StringBuilder();
+        if (downDistance > 0) {
+            for (int j = 0; j < downDistance; j++) {
+                stringBuilderVH.append('v');
+            }
+        } else {
+            for (int j = 0; j < -downDistance; j++) {
+                stringBuilderVH.append('^');
+            }
+        }
+        if (rightDistance > 0) {
+            for (int j = 0; j < rightDistance; j++) {
+                stringBuilderVH.append('>');
+            }
+        }
+        if (rightDistance < 0) {
+            for (int j = 0; j < -rightDistance; j++) {
+                stringBuilderVH.append('<');
+            }
+        }
+        stringBuilderVH.append('A');
+        if (!(NUMERIC_KEYPAD_POSITIONS.get(toValue).getY() >= 3 && NUMERIC_KEYPAD_POSITIONS.get(fromValue).getX() == 0)) {
+            result.add(stringBuilderVH.toString());
+        }
+        return result;
+    }
+
+    private Set<String> calculatePossibleWays2(String value) {
+        Set<String> result = new HashSet<>();
+        char fromValue = value.charAt(0);
+        char toValue = value.charAt(1);
+        long rightDistance = DIRECTIONAL_KEYPAD_POSITIONS.get(toValue).getX() -
+                DIRECTIONAL_KEYPAD_POSITIONS.get(fromValue).getX();
+        long downDistance = DIRECTIONAL_KEYPAD_POSITIONS.get(toValue).getY() -
+                DIRECTIONAL_KEYPAD_POSITIONS.get(fromValue).getY();
+        //check if we will go right, and calculate moves if we will
+        //check if we will go up, and calculate moves if we will
+        //check if we will go down, and calculate moves if we will
+        //else
+        //check if we will go up, and calculate moves if we will
+        //check if we will go down, and calculate moves if we will
+        //check if we will go left, and calculate moves if we will
+        StringBuilder stringBuilderHV = new StringBuilder();
+        if (rightDistance > 0) {
+            for (int j = 0; j < rightDistance; j++) {
+                stringBuilderHV.append('>');
+            }
+        }
+        if (rightDistance < 0) {
+            for (int j = 0; j < -rightDistance; j++) {
+                stringBuilderHV.append('<');
+            }
+        }
+        if (downDistance > 0) {
+            for (int j = 0; j < downDistance; j++) {
+                stringBuilderHV.append('v');
+            }
+        } else {
+            for (int j = 0; j < -downDistance; j++) {
+                stringBuilderHV.append('^');
+            }
+        }
+        stringBuilderHV.append('A');
+        if (!(DIRECTIONAL_KEYPAD_POSITIONS.get(fromValue).getY() == 0 && DIRECTIONAL_KEYPAD_POSITIONS.get(toValue).getX() == 0)) {
+            result.add(stringBuilderHV.toString());
+        }
+        StringBuilder stringBuilderVH = new StringBuilder();
+        if (downDistance > 0) {
+            for (int j = 0; j < downDistance; j++) {
+                stringBuilderVH.append('v');
+            }
+        } else {
+            for (int j = 0; j < -downDistance; j++) {
+                stringBuilderVH.append('^');
+            }
+        }
+        if (rightDistance > 0) {
+            for (int j = 0; j < rightDistance; j++) {
+                stringBuilderVH.append('>');
+            }
+        }
+        if (rightDistance < 0) {
+            for (int j = 0; j < -rightDistance; j++) {
+                stringBuilderVH.append('<');
+            }
+        }
+        stringBuilderVH.append('A');
+        if (!(DIRECTIONAL_KEYPAD_POSITIONS.get(toValue).getY() == 0 && DIRECTIONAL_KEYPAD_POSITIONS.get(fromValue).getX() == 0)) {
+            result.add(stringBuilderVH.toString());
+        }
+        return result;
     }
 
     @Override
