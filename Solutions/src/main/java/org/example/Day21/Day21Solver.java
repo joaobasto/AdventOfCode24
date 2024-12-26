@@ -49,11 +49,11 @@ public class Day21Solver extends AbstractSolver {
         long result = 0L;
         String line;
         while ((line = br.readLine()) != null) {
-            TreeNode rootNode = new TreeNode(line, true);
+            TreeNode rootNode = new TreeNode(line, true, 0);
             char[] characters = line.toCharArray();
             char currentCharacter = 'A';
             for (int i = 0; i < characters.length; i++) {
-                TreeNode treeNode = new TreeNode(currentCharacter + String.valueOf(characters[i]), false);
+                TreeNode treeNode = new TreeNode(currentCharacter + String.valueOf(characters[i]), false, 1);
                 rootNode.addChild(treeNode);
                 currentCharacter = characters[i];
             }
@@ -63,41 +63,53 @@ public class Day21Solver extends AbstractSolver {
             for (TreeNode treeNode : rootNode.getChildren()) {
                 Set<String> values = calculatePossibleWays(treeNode.value);
                 for (String value : values) {
-                    TreeNode childNode = new TreeNode(value, true);
+                    TreeNode childNode = new TreeNode(value, true, 2);
                     treeNode.addChild(childNode);
                     allChildren.add(childNode);
                 }
             }
 
+            int level = 3;
+            Map<CacheKey, Long> sizeByKey = new HashMap<>();
             List<TreeNode> newChildren;
             for (int j = 0; j < NUMBER_OF_DIRECTIONAL_KEYPADS; j++) {
                 //for all children
                 //split them into the sequence substrings
                 newChildren = new ArrayList<>();
                 for (TreeNode treeNode : allChildren) {
+                    if (sizeByKey.containsKey(new CacheKey(treeNode.value, level))) {
+                        continue;
+                    }
                     currentCharacter = 'A';
                     for (int i = 0; i < treeNode.value.length(); i++) {
-                        TreeNode childNode = new TreeNode(currentCharacter + String.valueOf(treeNode.value.charAt(i)), false);
+                        TreeNode childNode = new TreeNode(currentCharacter + String.valueOf(treeNode.value.charAt(i)), false, level + 1);
                         treeNode.addChild(childNode);
                         newChildren.add(childNode);
                         currentCharacter = treeNode.value.charAt(i);
                     }
+                    sizeByKey.put(new CacheKey(treeNode.value, level), 0L);
                 }
+                level++;
 
                 //for all children
                 //calculate the two possible ways and add them as child nodes
                 allChildren = new ArrayList<>();
                 for (TreeNode treeNode : newChildren) {
+                    if (sizeByKey.containsKey(new CacheKey(treeNode.value, level))) {
+                        continue;
+                    }
                     Set<String> values = calculatePossibleWays2(treeNode.value);
                     for (String value : values) {
-                        TreeNode childNode = new TreeNode(value, true);
+                        TreeNode childNode = new TreeNode(value, true, level + 1);
                         treeNode.addChild(childNode);
                         allChildren.add(childNode);
                     }
+                    sizeByKey.put(new CacheKey(treeNode.value, level), 0L);
                 }
+                level++;
             }
 
-            result += (rootNode.calculateSize() * Long.parseLong(line.substring(0, 3)));
+            result += (rootNode.calculateSize(sizeByKey) * Long.parseLong(line.substring(0, 3)));
         }
         return result;
     }
