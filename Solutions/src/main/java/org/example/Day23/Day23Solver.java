@@ -86,15 +86,19 @@ public class Day23Solver extends AbstractSolver {
 
         //now we apply the dynamic programming on the group of valid nodes only
         List<Node> validNodesList = new ArrayList<>(validNodes);
-        int result = calculateSize(validNodesList, 0, new HashSet<>());
-
-        return result;
+        Set<Node> solutionSet = calculateSize(validNodesList, 0, new HashSet<>());
+        List<String> solution = solutionSet.stream().map(node -> node.name).sorted().collect(Collectors.toList());
+        for(String nodeName : solution) {
+            System.out.print(nodeName + ",");
+        }
+        System.out.println();
+        return 0;
     }
 
-    private int calculateSize(List<Node> validNodesList, int index, Set<Node> includedNodes) {
+    private Set<Node> calculateSize(List<Node> validNodesList, int index, Set<Node> includedNodes) {
         //check for terminal cases
         if (index == validNodesList.size()) {
-            return includedNodes.size();
+            return includedNodes;
         }
 
         //check if including this node will still provide a valid solution
@@ -107,7 +111,8 @@ public class Day23Solver extends AbstractSolver {
         //(including this node or not)
         Set<Node> newNodes = new HashSet<>(includedNodes);
         newNodes.add(validNodesList.get(index));
-        return Math.max(calculateSize(validNodesList, index + 1, includedNodes),
-                calculateSize(validNodesList, index + 1, newNodes));
+        Set<Node> solution1 = calculateSize(validNodesList, index + 1, includedNodes);
+        Set<Node> solution2 = calculateSize(validNodesList, index + 1, newNodes);
+        return solution1.size() > solution2.size() ? solution1 : solution2;
     }
 }
