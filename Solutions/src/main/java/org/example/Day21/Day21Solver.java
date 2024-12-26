@@ -9,6 +9,9 @@ import java.util.*;
 
 public class Day21Solver extends AbstractSolver {
 
+    //To solve exercise 1 or 2, this should be set to 2 for exercise 1 and 25 for exercise 2
+    private static final int NUMBER_OF_DIRECTIONAL_KEYPADS = 25;
+
     private static final Map<Character, Position2D> NUMERIC_KEYPAD_POSITIONS =
             createNumericKeypadPositions();
 
@@ -66,53 +69,31 @@ public class Day21Solver extends AbstractSolver {
                 }
             }
 
-            //for all children
+            List<TreeNode> newChildren;
+            for (int j = 0; j < NUMBER_OF_DIRECTIONAL_KEYPADS; j++) {
+                //for all children
                 //split them into the sequence substrings
-            List<TreeNode> newChildren = new ArrayList<>();
-            for (TreeNode treeNode : allChildren) {
-                currentCharacter = 'A';
-                for (int i = 0; i < treeNode.value.length(); i++) {
-                    TreeNode childNode = new TreeNode(currentCharacter + String.valueOf(treeNode.value.charAt(i)), false);
-                    treeNode.addChild(childNode);
-                    newChildren.add(childNode);
-                    currentCharacter = treeNode.value.charAt(i);
+                newChildren = new ArrayList<>();
+                for (TreeNode treeNode : allChildren) {
+                    currentCharacter = 'A';
+                    for (int i = 0; i < treeNode.value.length(); i++) {
+                        TreeNode childNode = new TreeNode(currentCharacter + String.valueOf(treeNode.value.charAt(i)), false);
+                        treeNode.addChild(childNode);
+                        newChildren.add(childNode);
+                        currentCharacter = treeNode.value.charAt(i);
+                    }
                 }
-            }
 
-            //for all children
-            //calculate the two possible ways and add them as child nodes
-            allChildren = new ArrayList<>();
-            for (TreeNode treeNode : newChildren) {
-                Set<String> values = calculatePossibleWays2(treeNode.value);
-                for (String value : values) {
-                    TreeNode childNode = new TreeNode(value, true);
-                    treeNode.addChild(childNode);
-                    allChildren.add(childNode);
-                }
-            }
-
-            //for all children
-            //split them into the sequence substrings
-            newChildren = new ArrayList<>();
-            for (TreeNode treeNode : allChildren) {
-                currentCharacter = 'A';
-                for (int i = 0; i < treeNode.value.length(); i++) {
-                    TreeNode childNode = new TreeNode(currentCharacter + String.valueOf(treeNode.value.charAt(i)), false);
-                    treeNode.addChild(childNode);
-                    newChildren.add(childNode);
-                    currentCharacter = treeNode.value.charAt(i);
-                }
-            }
-
-            //for all children
-            //calculate the two possible ways and add them as child nodes
-            allChildren = new ArrayList<>();
-            for (TreeNode treeNode : newChildren) {
-                Set<String> values = calculatePossibleWays2(treeNode.value);
-                for (String value : values) {
-                    TreeNode childNode = new TreeNode(value, true);
-                    treeNode.addChild(childNode);
-                    allChildren.add(childNode);
+                //for all children
+                //calculate the two possible ways and add them as child nodes
+                allChildren = new ArrayList<>();
+                for (TreeNode treeNode : newChildren) {
+                    Set<String> values = calculatePossibleWays2(treeNode.value);
+                    for (String value : values) {
+                        TreeNode childNode = new TreeNode(value, true);
+                        treeNode.addChild(childNode);
+                        allChildren.add(childNode);
+                    }
                 }
             }
 
