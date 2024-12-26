@@ -46,10 +46,6 @@ public class Day23Solver extends AbstractSolver {
         //my first approach will be to use dynamic programming and try to "prune" the tree
         //as much as possible for it to be calculated in a reasonable ammount of time
 
-        //first step: I already know from the first part the sets with 3 nodes
-        //if a node does not belong to any of these sets, it cannot belong to a set with bigger size
-        //for this reason, I will do the same calculations as in part 1 and remove the nodes that are
-        //not in any of the sets
         Map<String, Node> nodesByName = new HashMap<>();
         String line;
         while ((line = br.readLine()) != null) {
@@ -64,9 +60,6 @@ public class Day23Solver extends AbstractSolver {
 
         Set<Set<Node>> validSets = new HashSet<>();
         for (Node node : nodesByName.values()) {
-            if(!node.name.startsWith("t")) {
-                continue;
-            }
             for (Node adjNode1 : node.adjacentNodes) {
                 for (Node adjNode2 : node.adjacentNodes) {
                     if (adjNode1.adjacentNodes.contains(adjNode2)) {
@@ -77,12 +70,6 @@ public class Day23Solver extends AbstractSolver {
         }
 
         Set<Node> validNodes = validSets.stream().flatMap(Collection::stream).collect(Collectors.toSet());
-        Set<Node> invalidNodes = new HashSet<>(nodesByName.values());
-        invalidNodes.removeAll(validNodes);
-        for (Node node : invalidNodes) {
-            nodesByName.remove(node);
-            node.adjacentNodes.stream().forEach(adjNode -> adjNode.adjacentNodes.remove(node));
-        }
 
         //now we apply the dynamic programming on the group of valid nodes only
         List<Node> validNodesList = new ArrayList<>(validNodes);
