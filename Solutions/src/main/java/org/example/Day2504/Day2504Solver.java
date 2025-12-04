@@ -91,6 +91,36 @@ public class Day2504Solver extends AbstractSolver {
 
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
-        return 0;
+        //initial setup of the grid and the guard
+        Grid<Boolean> grid = new Grid<>();
+        String line;
+        long y = 0;
+        while ((line = br.readLine()) != null) {
+            char[] characters = line.toCharArray();
+            for(long x = 0; x < characters.length; x++) {
+                Boolean hasRoll = characters[(int) x] == '@';
+                grid.addElement(x, y, hasRoll);
+            }
+            grid.setNumberOfColumns(characters.length);
+            y++;
+        }
+        grid.setNumberOfRows(y);
+
+        long result = 0;
+
+        while (true) {
+            long oldResult = result;
+            result = result + removeAllReachableRolls(grid);
+            if (oldResult == result) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    private long removeAllReachableRolls(Grid<Boolean> grid) {
+        return grid.getMap().entrySet().stream()
+                .filter(entry -> isEntryValid(entry, grid))
+                .peek(entry -> entry.setValue(false)).count();
     }
 }
