@@ -1,13 +1,13 @@
 package org.example;
 
-import org.example.Day2504.Day2504Solver;
+import org.example.Day2505.Day2505Solver;
 
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         long startTime = System.currentTimeMillis();
-        Solver solver = new Day2504Solver();
+        Solver solver = new Day2505Solver();
         solver.solveExercise1();
         solver.solveExercise2();
         long duration = System.currentTimeMillis() - startTime;
