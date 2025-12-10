@@ -1,7 +1,7 @@
 */.idea/*
 */target/*
 */.gitignore
-
+.idea/*
 
 Solutions/src/main/resources/META-INF/MANIFEST.MF
 
