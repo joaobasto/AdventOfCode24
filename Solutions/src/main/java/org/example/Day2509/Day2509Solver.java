@@ -41,7 +41,7 @@ public class Day2509Solver extends AbstractSolver {
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
         long result = 0;
-        System.out.println("Solution created in Python script.")
+        System.out.println("Solution created in Python script.");
         return 0;
     }
 }
