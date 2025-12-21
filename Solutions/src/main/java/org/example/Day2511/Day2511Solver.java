@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class Day2511Solver extends AbstractSolver {
 
-    private static final String INITIAL_NODE_ID = "you";
+    private static final String INITIAL_NODE_ID = "svr";
 
     @Override
     protected long createSolutionExercise1(BufferedReader br) throws IOException {
@@ -49,35 +49,43 @@ public class Day2511Solver extends AbstractSolver {
         return result;
     }
 
-    public static Long allPaths(
+    public static long allPaths(
             Map<Node, Set<Node>> graph,
             Node start,
             Node end
     ) {
-        Map<Node, Long> memo = new HashMap<>();
-        return dfsCount(graph, start, end, memo);
+        Map<State, Long> memo = new HashMap<>();
+        return dfsCount(graph, start, end, false, false, memo);
     }
 
     private static long dfsCount(
             Map<Node, Set<Node>> graph,
             Node current,
             Node end,
-            Map<Node, Long> memo
+            boolean seenDac,
+            boolean seenFft,
+            Map<State, Long> memo
     ) {
+        // Update state when entering node
+        if (current.getId().equals("dac")) seenDac = true;
+        if (current.getId().equals("fft")) seenFft = true;
+
         if (current.equals(end)) {
-            return 1L;
+            return (seenDac && seenFft) ? 1L : 0L;
         }
 
-        if (memo.containsKey(current)) {
-            return memo.get(current);
+        State state = new State(current, seenDac, seenFft);
+        if (memo.containsKey(state)) {
+            return memo.get(state);
         }
 
         long total = 0L;
         for (Node next : graph.getOrDefault(current, Collections.emptySet())) {
-            total += dfsCount(graph, next, end, memo);
+            total += dfsCount(graph, next, end, seenDac, seenFft, memo);
         }
 
-        memo.put(current, total);
+        memo.put(state, total);
         return total;
     }
+
 }
