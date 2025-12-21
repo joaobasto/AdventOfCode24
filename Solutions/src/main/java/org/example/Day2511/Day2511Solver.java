@@ -29,6 +29,35 @@ public class Day2511Solver extends AbstractSolver {
             nodesById.put(currentNodeId, currentNode);
         }
 
+        Node startNode = nodesById.get("you");
+        List<List<Node>> solutions = new ArrayList<>();
+
+        //solve(nodesById, youNode, solutions, List.of(youNode));
+        Map<Node, Set<Node>> graph = new HashMap<>();
+        nodesById.values().stream().forEach(value -> graph.put(value, value.getAdjacentNodes()));
+
+
+        return allPaths(graph, startNode, nodesById.get("out"), 1);
+    }
+
+    @Override
+    protected long createSolutionExercise2(BufferedReader br) throws IOException {
+        long result = 0;
+        String line;
+        Map<String, Node> nodesById = new HashMap<>();
+        while ((line = br.readLine()) != null) {
+            String[] auxString = line.split(": ");
+            String currentNodeId = auxString[0];
+            String[] adjacentNodesIds = auxString[1].split(" ");
+            Node currentNode = nodesById.getOrDefault(currentNodeId, new Node(currentNodeId));
+            for (String adjacentNodeId : adjacentNodesIds) {
+                Node adjacentNode = nodesById.getOrDefault(adjacentNodeId, new Node(adjacentNodeId));
+                currentNode.getAdjacentNodes().add(adjacentNode);
+                nodesById.put(adjacentNodeId, adjacentNode);
+            }
+            nodesById.put(currentNodeId, currentNode);
+        }
+
         Node startNode = nodesById.get(INITIAL_NODE_ID);
         List<List<Node>> solutions = new ArrayList<>();
 
@@ -37,25 +66,17 @@ public class Day2511Solver extends AbstractSolver {
         nodesById.values().stream().forEach(value -> graph.put(value, value.getAdjacentNodes()));
 
 
-        return allPaths(graph, startNode, nodesById.get("out"));
-    }
-
-    @Override
-    protected long createSolutionExercise2(BufferedReader br) throws IOException {
-        long result = 0;
-        String line;
-        while ((line = br.readLine()) != null) {
-        }
-        return result;
+        return allPaths(graph, startNode, nodesById.get("out"), 2);
     }
 
     public static long allPaths(
             Map<Node, Set<Node>> graph,
             Node start,
-            Node end
+            Node end,
+            int problemNumber
     ) {
         Map<State, Long> memo = new HashMap<>();
-        return dfsCount(graph, start, end, false, false, memo);
+        return dfsCount(graph, start, end, false, false, memo, problemNumber);
     }
 
     private static long dfsCount(
@@ -64,13 +85,17 @@ public class Day2511Solver extends AbstractSolver {
             Node end,
             boolean seenDac,
             boolean seenFft,
-            Map<State, Long> memo
+            Map<State, Long> memo,
+            int problemNumber
     ) {
         // Update state when entering node
         if (current.getId().equals("dac")) seenDac = true;
         if (current.getId().equals("fft")) seenFft = true;
 
         if (current.equals(end)) {
+            if (problemNumber == 1) {
+                return 1L;
+            }
             return (seenDac && seenFft) ? 1L : 0L;
         }
 
@@ -81,7 +106,7 @@ public class Day2511Solver extends AbstractSolver {
 
         long total = 0L;
         for (Node next : graph.getOrDefault(current, Collections.emptySet())) {
-            total += dfsCount(graph, next, end, seenDac, seenFft, memo);
+            total += dfsCount(graph, next, end, seenDac, seenFft, memo, problemNumber);
         }
 
         memo.put(state, total);
