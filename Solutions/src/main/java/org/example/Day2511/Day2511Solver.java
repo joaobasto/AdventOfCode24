@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class Day2511Solver extends AbstractSolver {
 
-    private static final String INITIAL_NODE_ID = "svr";
+    private static final String INITIAL_NODE_ID = "you";
 
     @Override
     protected long createSolutionExercise1(BufferedReader br) throws IOException {
@@ -37,87 +37,47 @@ public class Day2511Solver extends AbstractSolver {
         nodesById.values().stream().forEach(value -> graph.put(value, value.getAdjacentNodes()));
 
 
-        return allPaths(graph, startNode, nodesById.get("out")).size();
-    }
-
-    private void solve(Map<String, Node> nodesById, Node currentNode,
-                       List<List<Node>> solutions, List<Node> currentSolution) {
-        if (currentNode.getId().equals("out")) {
-            solutions.add(currentSolution);
-            return;
-        }
-
-        for (Node newNode : currentNode.getAdjacentNodes()) {
-            if (currentSolution.contains(newNode)) {
-                continue;
-            }
-            List<Node> solution = new ArrayList<>(currentSolution);
-            solution.add(newNode);
-            solve(nodesById, newNode, solutions, solution);
-        }
+        return allPaths(graph, startNode, nodesById.get("out"));
     }
 
     @Override
     protected long createSolutionExercise2(BufferedReader br) throws IOException {
         long result = 0;
         String line;
-        Map<String, Node> nodesById = new HashMap<>();
         while ((line = br.readLine()) != null) {
-            String[] auxString = line.split(": ");
-            String currentNodeId = auxString[0];
-            String[] adjacentNodesIds = auxString[1].split(" ");
-            Node currentNode = nodesById.getOrDefault(currentNodeId, new Node(currentNodeId));
-            for (String adjacentNodeId : adjacentNodesIds) {
-                Node adjacentNode = nodesById.getOrDefault(adjacentNodeId, new Node(adjacentNodeId));
-                currentNode.getAdjacentNodes().add(adjacentNode);
-                nodesById.put(adjacentNodeId, adjacentNode);
-            }
-            nodesById.put(currentNodeId, currentNode);
         }
-
-        Node startNode = nodesById.get(INITIAL_NODE_ID);
-        List<List<Node>> solutions = new ArrayList<>();
-
-        //solve(nodesById, youNode, solutions, List.of(youNode));
-        Map<Node, Set<Node>> graph = new HashMap<>();
-        nodesById.values().stream().forEach(value -> graph.put(value, value.getAdjacentNodes()));
-
-
-        return allPaths(graph, startNode, nodesById.get("out")).size();
+        return result;
     }
 
-    private boolean containsDesiredNodes(List<Node> solution) {
-        return solution.contains(new Node("dac")) && solution.contains(new Node("fft"));
-    }
-
-    public static List<List<Node>> allPaths(
+    public static Long allPaths(
             Map<Node, Set<Node>> graph,
             Node start,
             Node end
     ) {
-        List<List<Node>> result = new ArrayList<>();
-        Deque<Node> path = new ArrayDeque<>();
-        dfs(graph, start, end, path, result);
-        return result;
+        Map<Node, Long> memo = new HashMap<>();
+        return dfsCount(graph, start, end, memo);
     }
 
-    private static void dfs(
+    private static long dfsCount(
             Map<Node, Set<Node>> graph,
             Node current,
             Node end,
-            Deque<Node> path,
-            List<List<Node>> result
+            Map<Node, Long> memo
     ) {
-        path.addLast(current);
-
-        if (current == end) {
-            result.add(new ArrayList<>(path));
-        } else {
-            for (Node next : graph.getOrDefault(current, Collections.emptySet())) {
-                dfs(graph, next, end, path, result);
-            }
+        if (current.equals(end)) {
+            return 1L;
         }
 
-        path.removeLast(); // backtrack
+        if (memo.containsKey(current)) {
+            return memo.get(current);
+        }
+
+        long total = 0L;
+        for (Node next : graph.getOrDefault(current, Collections.emptySet())) {
+            total += dfsCount(graph, next, end, memo);
+        }
+
+        memo.put(current, total);
+        return total;
     }
 }
